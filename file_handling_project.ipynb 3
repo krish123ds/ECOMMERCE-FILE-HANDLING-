@@ -1,0 +1,320 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "534ab2ad-70e0-4511-95b2-abe33f6d875c",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Unzipped to: mainfolder\n"
+     ]
+    }
+   ],
+   "source": [
+    "import zipfile\n",
+    "import os\n",
+    "\n",
+    "zip_path = \"mainfolder.zip\" \n",
+    "output_folder = \"mainfolder\"\n",
+    "\n",
+    "with zipfile.ZipFile(zip_path, 'r') as zip_ref:\n",
+    "    zip_ref.extractall(output_folder)\n",
+    "\n",
+    "print(\"Unzipped to:\", output_folder)\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 37,
+   "id": "6e49e5f1-d230-4166-bd5d-fb411526a8d2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os      \n",
+    "import csv\n",
+    "import json    "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 39,
+   "id": "76f7a4e0-c225-4e51-9caa-d5d10e5b2259",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def load_data(main_folder):\n",
+    "    sales_data_path = os.path.join(main_folder, \"sales_data.csv\")\n",
+    "    product_details_path = os.path.join(main_folder, \"product_details\")\n",
+    "    product_descriptions_path = os.path.join(main_folder, \"product_descriptions\")\n",
+    "\n",
+    "    sales_data = {}\n",
+    "    product_details = {}\n",
+    "    product_descriptions = {}\n",
+    "\n",
+    "\n",
+    "    with open(sales_data_path, mode='r') as file:\n",
+    "        reader = csv.DictReader(file)\n",
+    "        for row in reader:\n",
+    "            sku = row['Product_SKU']\n",
+    "            sales = [int(row[f'Day{i}']) for i in range(1, 15)]\n",
+    "            sales_data[sku] = sales\n",
+    "\n",
+    "    \n",
+    "    for file in os.listdir(product_details_path):\n",
+    "        if file.endswith(\".json\"):\n",
+    "            sku = file.replace(\"details_\", \"\").replace(\".json\", \"\")\n",
+    "            with open(os.path.join(product_details_path, file)) as f:\n",
+    "                product_details[sku] = json.load(f)\n",
+    "\n",
+    "    \n",
+    "    for file in os.listdir(product_descriptions_path):\n",
+    "        if file.endswith(\".txt\"):\n",
+    "            sku = file.replace(\"description_\", \"\").replace(\".txt\", \"\")\n",
+    "            with open(os.path.join(product_descriptions_path, file)) as f:\n",
+    "                product_descriptions[sku] = f.read().strip()\n",
+    "\n",
+    "    return sales_data, product_details, product_descriptions\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 41,
+   "id": "cfdd2015-33ad-4241-9bce-7c4c203e2c5a",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Data loaded successfully.\n"
+     ]
+    }
+   ],
+   "source": [
+    "main_folder = os.path.join(\"mainfolder\", \"mainfolder\")\n",
+    "sales_data, product_details, product_descriptions = load_data(main_folder)\n",
+    "print(\"Data loaded successfully.\")\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "f8fbc955-ae03-4b03-bb8a-5056ed1c50b6",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "📁 Current directory: /Users/krishmendiratta/fh\n",
+      "📂 Items inside 'mainfolder': ['mainfolder']\n"
+     ]
+    }
+   ],
+   "source": [
+    "import os\n",
+    "\n",
+    "\n",
+    "print(\"📁 Current directory:\", os.getcwd())\n",
+    "print(\"📂 Items inside 'mainfolder':\", os.listdir(\"mainfolder\"))\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "id": "f4e05b11-22c4-4a07-bacd-628a7c973ec2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "\n",
+    "def update_sales_data(sales_data, sku, sales_list):\n",
+    "    sales_data[sku] = sales_list\n",
+    "    print(\" Sales data updated.\")\n",
+    "\n",
+    "\n",
+    "def update_product_details(product_details, sku, details_dict):\n",
+    "    product_details[sku] = details_dict\n",
+    "    print(\" Product details updated.\")\n",
+    "\n",
+    "\n",
+    "def update_product_description(product_descriptions, sku, description_text):\n",
+    "    product_descriptions[sku] = description_text\n",
+    "    print(\" Product description updated.\")\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 35,
+   "id": "b16cdaf7-40e3-4f81-80e7-5e7e65ab4a2b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def update(sales_data, product_details, product_descriptions):\n",
+    "    sku = input(\"Enter 13-character SKU: \").strip()\n",
+    "    if len(sku) != 13:\n",
+    "        print(\" Error: SKU must be exactly 13 characters.\")\n",
+    "        return sales_data, product_details, product_descriptions\n",
+    "\n",
+    "\n",
+    "    sales_input = input(\"Enter 14 sales numbers separated by spaces: \").strip().split()\n",
+    "    if len(sales_input) != 14 or not all(x.isdigit() for x in sales_input):\n",
+    "        print(\" Error: You must enter exactly 14 whole numbers.\")\n",
+    "        return sales_data, product_details, product_descriptions\n",
+    "    sales_list = list(map(int, sales_input))\n",
+    "\n",
+    "  \n",
+    "    print(\"Enter product details:\")\n",
+    "    name = input(\"Name: \")\n",
+    "    brand = input(\"Brand: \")\n",
+    "    model = input(\"Model: \")\n",
+    "    specs = input(\"Specifications: \")\n",
+    "    price = input(\"Price: \")\n",
+    "    availability = input(\"Availability: \")\n",
+    "    details_dict = {\n",
+    "        \"name\": name,\n",
+    "        \"brand\": brand,\n",
+    "        \"model\": model,\n",
+    "        \"specifications\": specs,\n",
+    "        \"price\": price,\n",
+    "        \"availability\": availability\n",
+    "    }\n",
+    "\n",
+    "\n",
+    "    description_text = input(\"Enter product description: \")\n",
+    "\n",
+    " \n",
+    "    update_sales_data(sales_data, sku, sales_list)\n",
+    "    update_product_details(product_details, sku, details_dict)\n",
+    "    update_product_description(product_descriptions, sku, description_text)\n",
+    "\n",
+    "    print(\" Product added/updated successfully!\")\n",
+    "    return sales_data, product_details, product_descriptions\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 33,
+   "id": "560d3871-379c-4503-9bc7-5fd23b9c0fec",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdin",
+     "output_type": "stream",
+     "text": [
+      "Enter 13-character SKU:  1234567890987\n",
+      "Enter 14 sales numbers separated by spaces:  12345678909876\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "❌ Error: You must enter exactly 14 whole numbers.\n"
+     ]
+    }
+   ],
+   "source": [
+    "sales_data, product_details, product_descriptions = update(sales_data, product_details, product_descriptions)\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 25,
+   "id": "169099bc-bccd-4d68-b966-90019945f737",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def dump_data(sales_data, product_details, product_descriptions, main_folder):\n",
+    "   \n",
+    "    sales_csv_path = os.path.join(main_folder, \"sales_data.csv\")\n",
+    "    details_folder = os.path.join(main_folder, \"product_details\")\n",
+    "    descriptions_folder = os.path.join(main_folder, \"product_descriptions\")\n",
+    "\n",
+    "    \n",
+    "    os.makedirs(details_folder, exist_ok=True)\n",
+    "    os.makedirs(descriptions_folder, exist_ok=True)\n",
+    "\n",
+    "    \n",
+    "    with open(sales_csv_path, mode='w', newline='') as file:\n",
+    "        writer = csv.writer(file)\n",
+    "     \n",
+    "        header = [\"Product_SKU\"] + [f\"Day{i}\" for i in range(1, 15)]\n",
+    "        writer.writerow(header)\n",
+    "       \n",
+    "        for sku, sales in sales_data.items():\n",
+    "            writer.writerow([sku] + sales)\n",
+    "    print(\" sales_data.csv written.\")\n",
+    "\n",
+    "   \n",
+    "    for sku, details in product_details.items():\n",
+    "        filename = f\"details_{sku}.json\"\n",
+    "        filepath = os.path.join(details_folder, filename)\n",
+    "        with open(filepath, 'w') as f:\n",
+    "            json.dump(details, f, indent=4)\n",
+    "    print(\" Product JSON files written.\")\n",
+    "\n",
+    "    \n",
+    "    for sku, description in product_descriptions.items():\n",
+    "        filename = f\"description_{sku}.txt\"\n",
+    "        filepath = os.path.join(descriptions_folder, filename)\n",
+    "        with open(filepath, 'w') as f:\n",
+    "            f.write(description)\n",
+    "    print(\" Product description TXT files written.\")\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 43,
+   "id": "8d7ef99a-c120-4a01-956d-95f1657900a5",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "✅ sales_data.csv written.\n",
+      "✅ Product JSON files written.\n",
+      "✅ Product description TXT files written.\n"
+     ]
+    }
+   ],
+   "source": [
+    "dump_data(sales_data, product_details, product_descriptions, main_folder)\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0e30c4dc-f1a3-4470-8cf6-f24ef92c4774",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.4"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
